@@ -1,0 +1,7 @@
+<h2>サインアップ</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">サインアップ</button>
+</form>
+<p>すでにアカウントを持っている人 <a href="{% url 'login' %}">ここからログイン</a>.</p>

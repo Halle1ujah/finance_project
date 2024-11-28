@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'finance/css/styles.css' %}">
+</head>
+<body>
+    <header class="navbar">
+        <nav>
+            <ul>
+                <li><a href="{% url 'dashboard' %}">ダッシュボード</a></li>
+                <li><a href="{% url 'contact' %}">問い合わせ</a></li>
+                <li><a href="{% url 'logout' %}">ログアウト</a></li>
+            </ul>
+        </nav>
+    </header>
+
+<h2>支出一覧</h2>
+<p><a href="{% url 'add_transaction' %}">支出内容を追加する</a></p>
+<table border="1">
+    <thead>
+        <tr>
+            <th>日付</th>
+            <th>用途</th>
+            <th>詳細</th>
+            <th>金額</th>
+            <th>削除</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.date }}</td>
+            <td>{{ transaction.category }}</td>
+            <td>{{ transaction.description }}</td>
+            <td>{{ transaction.amount }}</td>
+            <td>
+                <a href="{% url 'delete_transaction' transaction.id %}">削除</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="charts">
+    <div class="chart">
+        <h2>支出推移</h2>
+        <canvas id="lineChart"></canvas>
+    </div>
+    <div class="chart">
+        <h2>支出内訳</h2>
+        <canvas id="pieChart"></canvas>
+    </div>
+</div>
+<script>
+    const lineCtx = document.getElementById('lineChart').getContext('2d');
+    const lineChart = new Chart(lineCtx, {
+        type: 'line',
+        data: {
+            labels: {{ labels|safe }}, // 日付
+            datasets: [{
+                label: 'Daily Totals',
+                data: {{ totals|safe }}, // 日ごとの合計
+                borderColor: 'blue',
+                tension: 0.4
+            }]
+        }
+    });
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ category_labels|safe }}, // カテゴリ名
+            datasets: [{
+                data: {{ category_totals|safe }}, // 各カテゴリの合計
+                backgroundColor: ['red', 'blue', 'green', 'yellow', 'purple']
+            }]
+        }
+    });
+</script>
+
